@@ -9,9 +9,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
+import androidx.navigation.compose.rememberNavController
 import com.casa98.usersapi.ui.theme.UsersAPITheme
-import com.casa98.usersapi.ui.user_list.TodoListScreen
-import com.casa98.usersapi.ui.user_list.UserListViewModel
+import com.casa98.usersapi.ui.user_detail.UserDetailScreen
+import com.casa98.usersapi.ui.user_list.UserListScreen
+import com.casa98.usersapi.util.Routes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,23 +26,26 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             UsersAPITheme {
-                val viewModel: UserListViewModel = hiltViewModel()
-                // Greeting(name = "Ohhh, Los Del Sur!!")
-                TodoListScreen()
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = Routes.USER_LIST
+                ) {
+                    composable(Routes.USER_LIST) {
+                        UserListScreen(onNavigate = {
+                            navController.navigate(it.route)
+                        })
+                    }
+
+                    composable(
+                        Routes.USER_DETAIL + "?name={name}&email={email}",
+                    ) {
+                        UserDetailScreen(onPopBackStack = {
+                            navController.popBackStack()
+                        })
+                    }
+                }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    UsersAPITheme {
-        Greeting("Android")
     }
 }
